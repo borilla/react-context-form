@@ -15,7 +15,7 @@ function App(props) {
 				<FormInput name="four" />
 				<FormInput name="five" />
 			</FormSection>
-			<FormSubmit>Submit</FormSubmit>
+			<FormSubmit data-id="submit-button" onClick={() => console.log('Submit clicked')}>Submit</FormSubmit>
 		</FormSection>
 	);
 }

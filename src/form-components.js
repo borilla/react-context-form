@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormContext, useFormContext, useNewFormContext } from './form-context';
+
+const combineEventHandlers = (...handlers) => event => handlers.forEach(handler => handler && handler(event));
 
 export function FormSection(props) {
 	const context = useNewFormContext(props);
@@ -13,27 +15,29 @@ export function FormSection(props) {
 	);
 }
 
-export function FormInput({ name, initialValue }) {
+export function FormInput({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
 	const { triggerChange } = useFormContext({ name, getValue });
+	const handleChange = combineEventHandlers(triggerChange, onChange);
 
-	useEffect(() => {
-		initialValue && (ref.current.value = initialValue);
-	})
+	if (initialValue) {
+		useEffect(() => { ref.current.value = initialValue });
+	}
 
 	return (
 		<label>
-			<span>{name}:</span>
-			<input ref={ref} onChange={triggerChange} />
+			<span>{label || name}:</span>
+			<input ref={ref} onChange={handleChange} {...otherProps} />
 		</label>
 	);
 }
 
-export function FormSubmit(props) {
+export function FormSubmit({children, onClick, ...otherProps}) {
 	const { triggerSubmit } = useFormContext();
+	const handleClick = combineEventHandlers(triggerSubmit, onClick);
 
 	return (
-		<button onClick={triggerSubmit}>{props.children}</button>
+		<button onClick={handleClick} {...otherProps}>{children}</button>
 	);
 }
