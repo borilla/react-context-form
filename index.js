@@ -8,12 +8,13 @@ function App(props) {
 
 	return (
 		<FormSection onChange={onChange} onSubmit={onSubmit}>
-			<FormInput name="one" />
-			<FormInput name="two" />
-			<FormInput name="three" initialValue="hello" />
-			<FormSection name="inner-form">
-				<FormInput name="four" />
-				<FormInput name="five" />
+			<FormInput name="name" label="Name" />
+			<FormInput name="phone" label="Phone" />
+			<FormInput name="email" label="Email" />
+			<FormSection name="address">
+				<FormInput name="line-1" label="Address" />
+				<FormInput name="line-2" label="" />
+				<FormInput name="postal-code" label="Postal Code" />
 			</FormSection>
 			<FormSubmit data-id="submit-button" onClick={() => console.log('Submit clicked')}>Submit</FormSubmit>
 		</FormSection>

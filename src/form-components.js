@@ -3,6 +3,8 @@ import { FormContext, useFormContext, useNewFormContext } from './form-context';
 
 const combineEventHandlers = (...handlers) => event => handlers.forEach(handler => handler && handler(event));
 
+const firstDefined = (...args) => args.find(arg => arg !== undefined);
+
 export function FormSection(props) {
 	const context = useNewFormContext(props);
 
@@ -20,6 +22,7 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 	const getValue = () => ref.current.value;
 	const { triggerChange } = useFormContext({ name, getValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
+	const labelText = firstDefined(label, name);
 
 	if (initialValue) {
 		useEffect(() => { ref.current.value = initialValue });
@@ -27,7 +30,7 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 
 	return (
 		<label>
-			<span>{label || name}:</span>
+			<span>{labelText ? labelText + ':' : ""}</span>
 			<input ref={ref} onChange={handleChange} {...otherProps} />
 		</label>
 	);
