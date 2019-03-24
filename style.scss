@@ -1,0 +1,48 @@
+$padding: 0.6rem;
+$page-background-color: white;
+$form-background-color: lightsteelblue;
+$form-border-color: steelblue;
+$form-text-color: midnightblue;
+
+html {
+	font-family: sans-serif;
+	font-size: small;
+}
+
+button,
+input {
+	font-family: inherit;
+	font-size: inherit;
+}
+
+.form {
+	color: $form-text-color;
+	background-color: $form-background-color;
+	border: 1px solid $form-border-color;
+	margin: $padding 0;
+
+	& > * {
+		display: block;
+		margin: $padding;
+	}
+
+	button {
+		background-color: $form-text-color;
+		border-style: none;
+		color: $page-background-color;
+		padding: $padding ($padding * 2);
+	}
+
+	input {
+		border: 1px solid $form-border-color;
+		color: inherit;
+		background-color: $page-background-color;
+		padding: ($padding / 2);
+	}
+
+	label span {
+		display: inline-block;
+		min-width: 3rem;
+	}
+}
+

@@ -1,0 +1,22 @@
+{
+  "name": "react-form",
+  "version": "0.1.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "author": "borilla",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "babel-preset-react": "^6.24.1",
+    "parcel-bundler": "^1.12.3",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5",
+    "sass": "^1.17.3"
+  },
+  "dependencies": {}
+}
