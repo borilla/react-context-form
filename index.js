@@ -8,7 +8,7 @@ function App(props) {
 
 	return (
 		<FormSection onChange={onChange} onSubmit={onSubmit}>
-			<FormInput name="name" label="Name" />
+			<FormInput name="name" label="Name" initialValue="John" />
 			<FormInput name="phone" label="Phone" />
 			<FormInput name="email" label="Email" />
 			<FormSection name="address">

@@ -3,8 +3,7 @@ import React from 'react';
 // TODO: Make into a proper class?
 function FormContextValue() {
 	const _valueGetters = new Map();
-	const _changeListeners = new Set();
-	const _submitListeners = new Set();
+	const _eventListeners = new Map();
 
 	function getValue() {
 		const result = {};
@@ -14,30 +13,29 @@ function FormContextValue() {
 		return result;
 	}
 
-	function triggerListeners(listeners) {
-		listeners.forEach(listener => {
+	function triggerEvent(eventName) {
+		getEventListeners(eventName).forEach(listener => {
 			listener(getValue);
 		});
 	}
 
-	function triggerChange() {
-		triggerListeners(_changeListeners);
+	function addNewEventType(eventName) {
+		const listeners = new Set();
+		_eventListeners.set(eventName, listeners);
+		return listeners;
 	}
 
-	function triggerSubmit() {
-		triggerListeners(_submitListeners);
+	function getEventListeners(eventName) {
+		return _eventListeners.get(eventName) || addNewEventType(eventName);
 	}
 
 	return {
 		registerFormValue: (name, getValue) => { name && getValue && _valueGetters.set(name, getValue) },
 		unregisterFormValue: (name, getValue) => { name && getValue && _valueGetters.delete(name) },
-		registerChangeListener: listener => { listener && _changeListeners.add(listener) },
-		unegisterChangeListener: listener => { listener && _changeListeners.delete(listener) },
-		registerSubmitListener: listener => { listener && _submitListeners.add(listener) },
-		unegisterSubmitListener: listener => { listener && _submitListeners.delete(listener) },
+		addEventListener: (eventName, listener) => { listener && getEventListeners(eventName).add(listener) },
+		removeEventListener: (eventName, listener) => { listener && getEventListeners(eventName).delete(listener) },
 		getValue,
-		triggerChange,
-		triggerSubmit
+		triggerEvent
 	};
 }
 
@@ -48,13 +46,13 @@ export function useFormContext({ name, getValue, onChange, onSubmit } = {}) {
 
 	React.useEffect(() => {
 		context.registerFormValue(name, getValue);
-		context.registerChangeListener(onChange);
-		context.registerSubmitListener(onSubmit);
+		context.addEventListener('change', onChange);
+		context.addEventListener('submit', onSubmit);
 
 		return () => {
 			context.unregisterFormValue(name, getValue);
-			context.unregisterChangeListener(onChange);
-			context.unregisterSubmitListener(onSubmit);
+			context.removeEventListener('change', onChange);
+			context.removeEventListener('submit', onSubmit);
 		}
 	});
 
@@ -63,22 +61,19 @@ export function useFormContext({ name, getValue, onChange, onSubmit } = {}) {
 
 export function useNewFormContext({ name, onChange, onSubmit }) {
 	const myContext = new FormContextValue();
-	const parentContext = useFormContext({
-		name,
-		getValue: myContext.getValue
-	});
+	const parentContext = useFormContext({ name, getValue: myContext.getValue });
 
 	React.useEffect(() => {
-		myContext.registerChangeListener(onChange);
-		myContext.registerChangeListener(parentContext.triggerChange);
-		myContext.registerSubmitListener(onSubmit);
-		myContext.registerSubmitListener(parentContext.triggerSubmit);
+		myContext.addEventListener('change', onChange);
+		myContext.addEventListener('change', parentContext.triggerChange);
+		myContext.addEventListener('submit', onSubmit);
+		myContext.addEventListener('submit', parentContext.triggerSubmit);
 
 		return () => {
-			myContext.unregisterChangeListener(onChange);
-			myContext.unregisterChangeListener(parentContext.triggerChange);
-			myContext.unregisterSubmitListener(onSubmit);
-			myContext.unregisterSubmitListener(parentContext.triggerSubmit);
+			myContext.removeEventListener('change', onChange);
+			myContext.removeEventListener('change', parentContext.triggerChange);
+			myContext.removeEventListener('submit', onSubmit);
+			myContext.removeEventListener('submit', parentContext.triggerSubmit);
 		}
 	});
 

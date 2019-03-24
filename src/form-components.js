@@ -20,7 +20,8 @@ export function FormSection(props) {
 export function FormInput({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
-	const { triggerChange } = useFormContext({ name, getValue });
+	const { triggerEvent } = useFormContext({ name, getValue });
+	const triggerChange = () => triggerEvent('change');
 	const handleChange = combineEventHandlers(triggerChange, onChange);
 	const labelText = firstDefined(label, name);
 
@@ -37,7 +38,8 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 }
 
 export function FormSubmit({children, onClick, ...otherProps}) {
-	const { triggerSubmit } = useFormContext();
+	const { triggerEvent } = useFormContext();
+	const triggerSubmit = () => triggerEvent('submit');
 	const handleClick = combineEventHandlers(triggerSubmit, onClick);
 
 	return (
