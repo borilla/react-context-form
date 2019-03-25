@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FormContext, useFormContext, useNewFormContext } from './form-context';
 
 const combineEventHandlers = (...handlers) => event => handlers.forEach(handler => handler && handler(event));
@@ -23,16 +23,30 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 	const { triggerEvent } = useFormContext({ name, getValue });
 	const triggerChange = () => triggerEvent('change');
 	const handleChange = combineEventHandlers(triggerChange, onChange);
-	const labelText = firstDefined(label, name);
 
-	if (initialValue) {
-		useEffect(() => { ref.current.value = initialValue });
-	}
+	React.useEffect(() => { initialValue && (ref.current.value = initialValue) });
 
 	return (
 		<label>
-			<span>{labelText ? labelText + ':' : ""}</span>
-			<input ref={ref} onChange={handleChange} {...otherProps} />
+			<span>{label ? label + ':' : null}</span>
+			<input {...otherProps} ref={ref} onChange={handleChange} />
+		</label>
+	);
+}
+
+export function FormCheckbox({ label, name, initialValue, onChange, ...otherProps }) {
+	const ref = React.createRef();
+	const getValue = () => ref.current.checked;
+	const { triggerEvent } = useFormContext({ name, getValue });
+	const triggerChange = () => triggerEvent('change');
+	const handleChange = combineEventHandlers(triggerChange, onChange);
+
+	React.useEffect(() => { ref.current.checked = initialValue });
+
+	return (
+		<label>
+			<span>{label ? label + ':' : null}</span>
+			<input {...otherProps} type="checkbox" ref={ref} onChange={handleChange} />
 		</label>
 	);
 }
@@ -43,6 +57,6 @@ export function FormSubmit({children, onClick, ...otherProps}) {
 	const handleClick = combineEventHandlers(triggerSubmit, onClick);
 
 	return (
-		<button onClick={handleClick} {...otherProps}>{children}</button>
+		<button {...otherProps} onClick={handleClick}>{children}</button>
 	);
 }

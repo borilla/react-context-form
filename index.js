@@ -1,22 +1,34 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { FormSection, FormInput, FormSubmit } from './src/form-components';
+import { FormSection, FormInput, FormCheckbox, FormSubmit } from './src/form-components';
 
 function App(props) {
-	const onChange = getValue => console.log('Change:', getValue());
-	const onSubmit = getValue => console.log('Submit:', getValue());
+	const [formValue, setFormValue] = React.useState({ name: 'John', acceptTerms: false });
+
+	function onChange(getValue) {
+		const formValue = getValue();
+		setFormValue(formValue);
+		console.log('Change:', formValue);
+	}
+
+	function onSubmit(getValue) {
+		const formValue = getValue();
+		setFormValue(formValue);
+		console.log('Submit:', formValue);
+	}
 
 	return (
 		<FormSection onChange={onChange} onSubmit={onSubmit}>
-			<FormInput name="name" label="Name" initialValue="John" />
+			<FormInput name="name" label="Name" initialValue={formValue.name} />
 			<FormInput name="phone" label="Phone" />
 			<FormInput name="email" label="Email" />
 			<FormSection name="address">
-				<FormInput name="line-1" label="Address" />
-				<FormInput name="line-2" label="" />
-				<FormInput name="postal-code" label="Postal Code" />
+				<FormInput name="line1" label="Address" />
+				<FormInput name="line2" />
+				<FormInput name="postalCode" label="Postal Code" />
 			</FormSection>
-			<FormSubmit data-id="submit-button" onClick={() => console.log('Submit clicked')}>Submit</FormSubmit>
+			<FormCheckbox name="acceptTerms" label="Accept Terms" initialValue={formValue.acceptTerms} />
+			<FormSubmit disabled={!formValue.acceptTerms}>Submit</FormSubmit>
 		</FormSection>
 	);
 }

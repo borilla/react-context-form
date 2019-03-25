@@ -31,6 +31,11 @@ input {
 		border-style: none;
 		color: $page-background-color;
 		padding: $padding ($padding * 2);
+
+		&:disabled {
+			background-color: gray;
+			color: darkgray;
+		}
 	}
 
 	input {
@@ -45,4 +50,3 @@ input {
 		min-width: 6rem;
 	}
 }
-
