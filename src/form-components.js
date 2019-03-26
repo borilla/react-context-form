@@ -1,12 +1,10 @@
 import React from 'react';
-import { FormContext, useFormContext, useNewFormContext } from './form-context';
+import { FormContext, useFormComponentContext, useFormContainerContext } from './form-context';
 
 const combineEventHandlers = (...handlers) => event => handlers.forEach(handler => handler && handler(event));
 
-const firstDefined = (...args) => args.find(arg => arg !== undefined);
-
 export function FormSection(props) {
-	const context = useNewFormContext(props);
+	const context = useFormContainerContext(props);
 
 	return (
 		<section className="form">
@@ -20,7 +18,7 @@ export function FormSection(props) {
 export function FormInput({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
-	const { triggerEvent } = useFormContext({ name, getValue });
+	const { triggerEvent } = useFormComponentContext({ name, getValue });
 	const triggerChange = () => triggerEvent('change');
 	const handleChange = combineEventHandlers(triggerChange, onChange);
 
@@ -37,7 +35,7 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 export function FormCheckbox({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.checked;
-	const { triggerEvent } = useFormContext({ name, getValue });
+	const { triggerEvent } = useFormComponentContext({ name, getValue });
 	const triggerChange = () => triggerEvent('change');
 	const handleChange = combineEventHandlers(triggerChange, onChange);
 
@@ -52,7 +50,7 @@ export function FormCheckbox({ label, name, initialValue, onChange, ...otherProp
 }
 
 export function FormSubmit({children, onClick, ...otherProps}) {
-	const { triggerEvent } = useFormContext();
+	const { triggerEvent } = useFormComponentContext();
 	const triggerSubmit = () => triggerEvent('submit');
 	const handleClick = combineEventHandlers(triggerSubmit, onClick);
 

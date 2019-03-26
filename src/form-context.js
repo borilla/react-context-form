@@ -43,27 +43,23 @@ function FormContextValue() {
 
 export const FormContext = React.createContext(new FormContextValue());
 
-export function useFormContext({ name, getValue, onChange, onSubmit } = {}) {
+export function useFormComponentContext({ name, getValue } = {}) {
 	const context = React.useContext(FormContext);
 
 	React.useEffect(() => {
 		context.registerFormValue(name, getValue);
-		context.addEventListener('change', onChange);
-		context.addEventListener('submit', onSubmit);
 
 		return () => {
 			context.unregisterFormValue(name, getValue);
-			context.removeEventListener('change', onChange);
-			context.removeEventListener('submit', onSubmit);
 		}
 	});
 
 	return context;
 }
 
-export function useNewFormContext({ name, onChange, onSubmit }) {
+export function useFormContainerContext({ name, onChange, onSubmit }) {
 	const myContext = new FormContextValue();
-	const parentContext = useFormContext({ name, getValue: myContext.getValue });
+	const parentContext = useFormComponentContext({ name, getValue: myContext.getValue });
 
 	React.useEffect(() => {
 		myContext.addEventListener('change', onChange);
