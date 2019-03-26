@@ -5,13 +5,13 @@ import { FormSection, FormInput, FormCheckbox, FormSubmit } from './src/form-com
 function App(props) {
 	const [formValue, setFormValue] = React.useState({ name: 'John', acceptTerms: false });
 
-	function onChange(getValue) {
+	function onChange({ getValue }) {
 		const formValue = getValue();
 		setFormValue(formValue);
 		console.log('Change:', formValue);
 	}
 
-	function onSubmit(getValue) {
+	function onSubmit({ getValue }) {
 		const formValue = getValue();
 		setFormValue(formValue);
 		console.log('Submit:', formValue);
