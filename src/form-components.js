@@ -18,8 +18,7 @@ export function FormSection(props) {
 export function FormInput({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
-	const { triggerEvent } = useFormComponentContext({ name, getValue });
-	const triggerChange = () => triggerEvent('change');
+	const { triggerChange } = useFormComponentContext({ name, getValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
 
 	React.useEffect(() => { initialValue && (ref.current.value = initialValue) });
@@ -35,8 +34,7 @@ export function FormInput({ label, name, initialValue, onChange, ...otherProps }
 export function FormCheckbox({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.checked;
-	const { triggerEvent } = useFormComponentContext({ name, getValue });
-	const triggerChange = () => triggerEvent('change');
+	const { triggerChange } = useFormComponentContext({ name, getValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
 
 	React.useEffect(() => { ref.current.checked = initialValue });
@@ -50,8 +48,7 @@ export function FormCheckbox({ label, name, initialValue, onChange, ...otherProp
 }
 
 export function FormSubmit({children, onClick, ...otherProps}) {
-	const { triggerEvent } = useFormComponentContext();
-	const triggerSubmit = () => triggerEvent('submit');
+	const { triggerSubmit } = useFormComponentContext();
 	const handleClick = combineEventHandlers(triggerSubmit, onClick);
 
 	return (
