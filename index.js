@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Form from './src/form-components';
 
+
 function App(props) {
-	const [state, setState] = React.useState({ title: 'Ms', name: 'John', acceptTerms: false });
+	const initialValue = { title: 'Ms', name: 'John', address: { line1: '10 King Street' }, acceptTerms: true };
+	const [state, setState] = React.useState(initialValue);
 
 	function onChange({ getValue }) {
 		const newState = getValue();
@@ -17,13 +19,15 @@ function App(props) {
 		console.log('Submit:', newState);
 	}
 
+	console.log('state', state);
+
 	return (
-		<Form.Section onChange={onChange} onSubmit={onSubmit}>
-			<Form.Select name="title" label="Title" initialValue={state.title}>
+		<Form.Section onChange={onChange} onSubmit={onSubmit} initialValue={state}>
+			<Form.Select name="title" label="Title">
 				<Form.Option>Mr</Form.Option>
 				<Form.Option>Ms</Form.Option>
 			</Form.Select>
-			<Form.Input name="name" label="Name" initialValue={state.name} />
+			<Form.Input name="name" label="Name" />
 			<Form.Input name="phone" label="Phone" />
 			<Form.Input name="email" label="Email" />
 			<Form.Section name="address">
@@ -31,7 +35,7 @@ function App(props) {
 				<Form.Input name="line2" />
 				<Form.Input name="postalCode" label="Postal Code" />
 			</Form.Section>
-			<Form.Checkbox name="acceptTerms" label="Accept Terms" initialValue={state.acceptTerms} />
+			<Form.Checkbox name="acceptTerms" label="Accept Terms" />
 			<Form.Submit disabled={!state.acceptTerms}>Submit</Form.Submit>
 		</Form.Section>
 	);

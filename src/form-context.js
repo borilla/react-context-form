@@ -1,7 +1,7 @@
 import React from 'react';
 
 // TODO: Make into a proper class?
-function FormContextValue() {
+function FormContextValue(initialValue = {}) {
 	const _valueGetters = new Map();
 	const _eventListeners = new Map();
 
@@ -35,6 +35,7 @@ function FormContextValue() {
 		addEventListener: (eventName, listener) => { listener && getEventListeners(eventName).add(listener) },
 		removeEventListener: (eventName, listener) => { listener && getEventListeners(eventName).delete(listener) },
 		getValue,
+		initialValue,
 		triggerEvent,
 		triggerChange: () => triggerEvent('change'),
 		triggerSubmit: () => triggerEvent('submit')
@@ -59,23 +60,26 @@ export function useFormComponentContext({ name, getValue } = {}) {
 	return context;
 }
 
-export function useFormContainerContext({ name, onChange, onSubmit }) {
-	const myContext = new FormContextValue();
-	const parentContext = useFormComponentContext({ name, getValue: myContext.getValue });
+export function useFormContainerContext({ name, initialValue, onChange, onSubmit }) {
+	const thisContext = new FormContextValue();
+	const parentContext = useFormComponentContext({ name, getValue: thisContext.getValue });
+	thisContext.initialValue = initialValue || parentContext.initialValue[name] || {};
+
+	console.log('useFormContainerContext', name, initialValue);
 
 	React.useEffect(() => {
-		myContext.addEventListener('change', onChange);
-		myContext.addEventListener('change', parentContext.triggerChange);
-		myContext.addEventListener('submit', onSubmit);
-		myContext.addEventListener('submit', parentContext.triggerSubmit);
+		thisContext.addEventListener('change', onChange);
+		thisContext.addEventListener('change', parentContext.triggerChange);
+		thisContext.addEventListener('submit', onSubmit);
+		thisContext.addEventListener('submit', parentContext.triggerSubmit);
 
 		return () => {
-			myContext.removeEventListener('change', onChange);
-			myContext.removeEventListener('change', parentContext.triggerChange);
-			myContext.removeEventListener('submit', onSubmit);
-			myContext.removeEventListener('submit', parentContext.triggerSubmit);
+			thisContext.removeEventListener('change', onChange);
+			thisContext.removeEventListener('change', parentContext.triggerChange);
+			thisContext.removeEventListener('submit', onSubmit);
+			thisContext.removeEventListener('submit', parentContext.triggerSubmit);
 		}
 	});
 
-	return myContext;
+	return thisContext;
 }
