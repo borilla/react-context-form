@@ -3,8 +3,6 @@ import { FormContext, useFormComponentContext, useFormContainerContext } from '.
 
 const combineEventHandlers = (...handlers) => event => handlers.forEach(handler => handler && handler(event));
 
-const firstDefined = (a, b) => a === undefined ? b : a;
-
 export function Section(props) {
 	const context = useFormContainerContext(props);
 
@@ -17,14 +15,12 @@ export function Section(props) {
 	);
 }
 
-export function Input({ label, name, initialValue: propsValue, onChange, ...otherProps }) {
+export function Input({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
-	const { initialValue: parentValue, triggerChange } = useFormComponentContext({ name, getValue });
+	const setValue = value => ref.current.value = value;
+	const { triggerChange } = useFormComponentContext({ name, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
-	const initialValue = firstDefined(propsValue, parentValue[name]);
-
-	React.useEffect(() => { initialValue && (ref.current.value = initialValue) });
 
 	return (
 		<label>
@@ -34,14 +30,12 @@ export function Input({ label, name, initialValue: propsValue, onChange, ...othe
 	);
 }
 
-export function Checkbox({ label, name, initialValue: propsValue, onChange, ...otherProps }) {
+export function Checkbox({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.checked;
-	const { initialValue: parentValue, triggerChange } = useFormComponentContext({ name, getValue });
+	const setValue = value => ref.current.checked = value;
+	const { triggerChange } = useFormComponentContext({ name, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
-	const initialValue = firstDefined(propsValue, parentValue[name]);
-
-	React.useEffect(() => { initialValue && (ref.current.checked = initialValue) });
 
 	return (
 		<label>
@@ -51,14 +45,12 @@ export function Checkbox({ label, name, initialValue: propsValue, onChange, ...o
 	);
 }
 
-export function Select({ label, name, initialValue: propsValue, onChange, children, ...otherProps }) {
+export function Select({ label, name, initialValue, onChange, children, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
-	const { initialValue: parentValue, triggerChange } = useFormComponentContext({ name, getValue });
+	const setValue = value => ref.current.value = value;
+	const { triggerChange } = useFormComponentContext({ name, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(triggerChange, onChange);
-	const initialValue = firstDefined(propsValue, parentValue[name]);
-
-	React.useEffect(() => { initialValue && (ref.current.value = initialValue) });
 
 	return (
 		<label>

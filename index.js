@@ -2,9 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Form from './src/form-components';
 
-
 function App(props) {
-	const initialValue = { title: 'Ms', name: 'John', address: { line1: '10 King Street' }, acceptTerms: true };
+	const initialValue = { title: 'Ms', name: 'John', address: { line1: '10 King Street' } };
 	const [state, setState] = React.useState(initialValue);
 
 	function onChange({ getValue }) {
@@ -18,8 +17,6 @@ function App(props) {
 		setState(newState);
 		console.log('Submit:', newState);
 	}
-
-	console.log('state', state);
 
 	return (
 		<Form.Section onChange={onChange} onSubmit={onSubmit} initialValue={state}>

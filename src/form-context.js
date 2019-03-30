@@ -1,5 +1,7 @@
 import React from 'react';
 
+const firstDefined = (a, b) => a === undefined ? b : a;
+
 // TODO: Make into a proper class?
 function FormContextValue(initialValue = {}) {
 	const _valueGetters = new Map();
@@ -46,10 +48,17 @@ function FormContextValue(initialValue = {}) {
 
 export const FormContext = React.createContext(new FormContextValue());
 
-export function useFormComponentContext({ name, getValue } = {}) {
+export function useFormComponentContext({ name, initialValue, getValue, setValue } = {}) {
 	const context = React.useContext(FormContext);
 
 	React.useEffect(() => {
+		if (setValue) {
+			const value = firstDefined(initialValue, context.initialValue[name]);
+			if (value !== undefined) {
+				setValue(value);
+			}
+		}
+
 		context.registerFormValue(name, getValue);
 
 		return () => {
@@ -64,8 +73,6 @@ export function useFormContainerContext({ name, initialValue, onChange, onSubmit
 	const thisContext = new FormContextValue();
 	const parentContext = useFormComponentContext({ name, getValue: thisContext.getValue });
 	thisContext.initialValue = initialValue || parentContext.initialValue[name] || {};
-
-	console.log('useFormContainerContext', name, initialValue);
 
 	React.useEffect(() => {
 		thisContext.addEventListener('change', onChange);
