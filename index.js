@@ -6,20 +6,14 @@ function App(props) {
 	const initialValue = { title: 'Ms', name: 'John', address: { line1: '10 King Street' } };
 	const [state, setState] = React.useState(initialValue);
 
-	function onChange({ getValue }) {
+	function onEvent(event, { getValue }) {
 		const newState = getValue();
 		setState(newState);
-		console.log('Change:', newState);
-	}
-
-	function onSubmit({ getValue }) {
-		const newState = getValue();
-		setState(newState);
-		console.log('Submit:', newState);
+		console.log(event, newState);
 	}
 
 	return (
-		<Form.Section onChange={onChange} onSubmit={onSubmit} initialValue={state}>
+		<Form.Section onEvent={onEvent} initialValue={state}>
 			<Form.Select name="title" label="Title">
 				<Form.Option>Mr</Form.Option>
 				<Form.Option>Ms</Form.Option>

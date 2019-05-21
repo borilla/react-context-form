@@ -1,7 +1,7 @@
 {
   "name": "react-form",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.2.0",
+  "description": "[Experimental] form input using `context` to link the form components",
   "main": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

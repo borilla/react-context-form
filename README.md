@@ -1,6 +1,6 @@
 # react-form
 
-Experimental form input using `context` to link the form components
+[Experimental] form input using `context` to link the form components
 
 ## To try it out
 

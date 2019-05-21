@@ -1,92 +1,128 @@
 import React from 'react';
 
-const firstDefined = (a, b) => a === undefined ? b : a;
+const emptyObject = {};
 
-// TODO: Make into a proper class?
-function FormContextValue(initialValue = {}) {
-	const _valueGetters = new Map();
-	const _eventListeners = new Map();
+function getFirstDefined(a, b) {
+	return a === undefined ? b : a;
+}
 
-	function getValue() {
+class FormBaseContextValue {
+	constructor(onEvent, initialValue) {
+		this._valueGetters = new Map();
+		this.initialValue = initialValue;
+		this.parentContext = null;
+
+		if (onEvent) {
+			this.onEvent = onEvent;
+		}
+		this.getValue = this.getValue.bind(this);
+		this.setValue = this.setValue.bind(this);
+		this.registerFormValue = this.registerFormValue.bind(this);
+		this.unregisterFormValue = this.unregisterFormValue.bind(this);
+		this.triggerEvent = this.triggerEvent.bind(this);
+	}
+
+	getValue() {
+		return this.initialValue;
+	}
+
+	setValue(value) {
+		this.initialValue = value;
+	}
+
+	registerFormValue(nameOrIndex, getValue) {
+		this._valueGetters.set(nameOrIndex, getValue);
+	}
+
+	unregisterFormValue(nameOrIndex, getValue) {
+		this._valueGetters.delete(nameOrIndex);
+	}
+
+	triggerEvent(event) {
+		const next = (_event = event) => this._triggerNext(event);
+		this.onEvent(event, this, next);
+	}
+
+	onEvent(event, context, next) {
+		next(event, context);
+	}
+
+	_triggerNext(event) {
+		if (this.parentContext) {
+			this.parentContext.triggerEvent(event);
+		}
+	}
+}
+
+class FormObjectContextValue extends FormBaseContextValue {
+	constructor(onEvent, initialValue = {}) {
+		super(onEvent, initialValue);
+		this.getValue = this.getValue.bind(this);
+	}
+
+	getValue() {
 		const result = {};
-		_valueGetters.forEach((getValue, name) => {
+		this._valueGetters.forEach((getValue, name) => {
 			result[name] = getValue();
 		});
 		return result;
 	}
-
-	function triggerEvent(eventName) {
-		getEventListeners(eventName).forEach(listener => {
-			listener(contextValue);
-		});
-	}
-
-	function addNewEventType(eventName) {
-		const listeners = new Set();
-		_eventListeners.set(eventName, listeners);
-		return listeners;
-	}
-
-	function getEventListeners(eventName) {
-		return _eventListeners.get(eventName) || addNewEventType(eventName);
-	}
-
-	const contextValue = {
-		registerFormValue: (name, getValue) => { name && getValue && _valueGetters.set(name, getValue) },
-		unregisterFormValue: (name, getValue) => { name && getValue && _valueGetters.delete(name) },
-		addEventListener: (eventName, listener) => { listener && getEventListeners(eventName).add(listener) },
-		removeEventListener: (eventName, listener) => { listener && getEventListeners(eventName).delete(listener) },
-		getValue,
-		initialValue,
-		triggerEvent,
-		triggerChange: () => triggerEvent('change'),
-		triggerSubmit: () => triggerEvent('submit')
-	};
-
-	return contextValue;
 }
 
-export const FormContext = React.createContext(new FormContextValue());
+class FormArrayContextValue extends FormBaseContextValue {
+	constructor(onEvent, initialValue = []) {
+		super(onEvent, initialValue);
+		this.getValue = this.getValue.bind(this);
+	}
 
-export function useFormComponentContext({ name, initialValue, getValue, setValue } = {}) {
+	getValue() {
+		const result = [];
+		this._valueGetters.forEach((getValue, index) => {
+			result[index] = getValue();
+		});
+		return result;
+	}
+}
+
+export const FormContext = React.createContext(new FormBaseContextValue());
+
+export function useFormComponentContext({ name, index, initialValue, getValue, setValue } = {}) {
 	const context = React.useContext(FormContext);
 
 	React.useEffect(() => {
-		if (setValue) {
-			const value = firstDefined(initialValue, context.initialValue[name]);
-			if (value !== undefined) {
-				setValue(value);
+		const nameOrIndex = getFirstDefined(name, index);
+
+		if (nameOrIndex !== undefined) {
+			if (setValue) {
+				const value = getFirstDefined(initialValue, context.initialValue[nameOrIndex]);
+				if (value !== undefined) {
+					setValue(value);
+				}
 			}
-		}
 
-		context.registerFormValue(name, getValue);
+			context.registerFormValue(nameOrIndex, getValue);
 
-		return () => {
-			context.unregisterFormValue(name, getValue);
+			return () => {
+				context.unregisterFormValue(nameOrIndex, getValue);
+			}
 		}
 	});
 
 	return context;
 }
 
-export function useFormContainerContext({ name, initialValue, onChange, onSubmit }) {
-	const thisContext = new FormContextValue();
-	const parentContext = useFormComponentContext({ name, getValue: thisContext.getValue });
-	thisContext.initialValue = initialValue || parentContext.initialValue[name] || {};
+export function useFormObjectContext({ name, index, initialValue, onEvent }) {
+	const thisContext = new FormObjectContextValue(onEvent, initialValue);
+	const parentContext = useFormComponentContext({ name, index, initialValue, getValue: thisContext.getValue, setValue: thisContext.setValue });
+	thisContext.parentContext = parentContext;
 
-	React.useEffect(() => {
-		thisContext.addEventListener('change', onChange);
-		thisContext.addEventListener('change', parentContext.triggerChange);
-		thisContext.addEventListener('submit', onSubmit);
-		thisContext.addEventListener('submit', parentContext.triggerSubmit);
+	return thisContext;
+}
 
-		return () => {
-			thisContext.removeEventListener('change', onChange);
-			thisContext.removeEventListener('change', parentContext.triggerChange);
-			thisContext.removeEventListener('submit', onSubmit);
-			thisContext.removeEventListener('submit', parentContext.triggerSubmit);
-		}
-	});
+export function useFormArrayContext({ name, index, initialValue, onEvent }) {
+	const thisContext = new FormArrayContextValue(onEvent, initialValue);
+	const parentContext = useFormComponentContext({ name, index, initialValue, getValue: thisContext.getValue, setValue: thisContext.setValue });
+	thisContext.parentContext = parentContext;
 
 	return thisContext;
 }
