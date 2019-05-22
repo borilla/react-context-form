@@ -7,14 +7,15 @@ function getFirstDefined(a, b) {
 }
 
 class FormBaseContextValue {
-	constructor(onEvent, initialValue) {
+	constructor(onEvent, initialValue, parentContext) {
 		this._valueGetters = new Map();
 		this.initialValue = initialValue;
-		this.parentContext = null;
+		this.parentContext = parentContext;
 
 		if (onEvent) {
 			this.onEvent = onEvent;
 		}
+
 		this.getValue = this.getValue.bind(this);
 		this.setValue = this.setValue.bind(this);
 		this.registerFormValue = this.registerFormValue.bind(this);
@@ -39,7 +40,7 @@ class FormBaseContextValue {
 	}
 
 	triggerEvent(event) {
-		const next = (_event = event) => this._triggerNext(event);
+		const next = (_event = event) => this._triggerNext(_event);
 		this.onEvent(event, this, next);
 	}
 
@@ -55,9 +56,8 @@ class FormBaseContextValue {
 }
 
 class FormObjectContextValue extends FormBaseContextValue {
-	constructor(onEvent, initialValue = {}) {
-		super(onEvent, initialValue);
-		this.getValue = this.getValue.bind(this);
+	constructor(onEvent, initialValue = {}, parentContext) {
+		super(onEvent, initialValue, parentContext);
 	}
 
 	getValue() {
@@ -70,9 +70,8 @@ class FormObjectContextValue extends FormBaseContextValue {
 }
 
 class FormArrayContextValue extends FormBaseContextValue {
-	constructor(onEvent, initialValue = []) {
-		super(onEvent, initialValue);
-		this.getValue = this.getValue.bind(this);
+	constructor(onEvent, initialValue = [], parentContext) {
+		super(onEvent, initialValue, parentContext);
 	}
 
 	getValue() {
@@ -88,10 +87,9 @@ export const FormContext = React.createContext(new FormBaseContextValue());
 
 export function useFormComponentContext({ name, index, initialValue, getValue, setValue } = {}) {
 	const context = React.useContext(FormContext);
+	const nameOrIndex = getFirstDefined(name, index);
 
 	React.useEffect(() => {
-		const nameOrIndex = getFirstDefined(name, index);
-
 		if (nameOrIndex !== undefined) {
 			if (setValue) {
 				const value = getFirstDefined(initialValue, context.initialValue[nameOrIndex]);
@@ -111,18 +109,44 @@ export function useFormComponentContext({ name, index, initialValue, getValue, s
 	return context;
 }
 
-export function useFormObjectContext({ name, index, initialValue, onEvent }) {
-	const thisContext = new FormObjectContextValue(onEvent, initialValue);
-	const parentContext = useFormComponentContext({ name, index, initialValue, getValue: thisContext.getValue, setValue: thisContext.setValue });
-	thisContext.parentContext = parentContext;
+function getInitialValue(initialValue, parentContext, nameOrIndex) {
+	if (initialValue !== undefined) {
+		return initialValue;
+	}
+	if (!parentContext) {
+		return undefined;
+	}
+	return parentContext.initialValue[nameOrIndex];
+}
+
+export function useFormObjectContext(props) {
+	const nameOrIndex = getFirstDefined(props.name, props.index);
+	const parentContext = React.useContext(FormContext);
+	const initialValue = getInitialValue(props.initialValue, parentContext, nameOrIndex);
+	const thisContext = new FormObjectContextValue(props.onEvent, initialValue, parentContext);
+
+	if (parentContext && nameOrIndex !== undefined) {
+		React.useEffect(() => {
+			parentContext.registerFormValue(nameOrIndex, thisContext.getValue);
+			return () => parentContext.unregisterFormValue(nameOrIndex, thisContext.getValue);
+		});
+	}
 
 	return thisContext;
 }
 
-export function useFormArrayContext({ name, index, initialValue, onEvent }) {
-	const thisContext = new FormArrayContextValue(onEvent, initialValue);
-	const parentContext = useFormComponentContext({ name, index, initialValue, getValue: thisContext.getValue, setValue: thisContext.setValue });
-	thisContext.parentContext = parentContext;
+export function useFormArrayContext(props) {
+	const nameOrIndex = getFirstDefined(props.name, props.index);
+	const parentContext = React.useContext(FormContext);
+	const initialValue = getInitialValue(props.initialValue, parentContext, nameOrIndex);
+	const thisContext = new FormArrayContextValue(props.onEvent, initialValue, parentContext);
+
+	if (parentContext && nameOrIndex !== undefined) {
+		React.useEffect(() => {
+			parentContext.registerFormValue(nameOrIndex, thisContext.getValue);
+			return () => parentContext.unregisterFormValue(nameOrIndex, thisContext.getValue);
+		});
+	}
 
 	return thisContext;
 }

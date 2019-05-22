@@ -29,8 +29,8 @@ export function Input({ label, name, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
 	const setValue = value => ref.current.value = value;
-	const { triggerEvent } = useFormComponentContext({ name, initialValue, getValue, setValue });
-	const handleChange = combineEventHandlers(onChange, () => triggerEvent('change'));
+	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
 		<label>
@@ -44,8 +44,8 @@ export function Checkbox({ label, name, initialValue, onChange, ...otherProps })
 	const ref = React.createRef();
 	const getValue = () => ref.current.checked;
 	const setValue = value => ref.current.checked = value;
-	const { triggerEvent } = useFormComponentContext({ name, initialValue, getValue, setValue });
-	const handleChange = combineEventHandlers(onChange, () => triggerEvent('change'));
+	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
 		<label>
@@ -59,8 +59,8 @@ export function Select({ label, name, initialValue, onChange, children, ...other
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
 	const setValue = value => ref.current.value = value;
-	const { triggerEvent } = useFormComponentContext({ name, initialValue, getValue, setValue });
-	const handleChange = combineEventHandlers(onChange, () => triggerEvent('change'));
+	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
 		<label>
@@ -77,8 +77,8 @@ export function Option({ children, ...otherProps }) {
 }
 
 export function Submit({children, onClick, ...otherProps}) {
-	const { triggerEvent } = useFormComponentContext();
-	const handleClick = combineEventHandlers(onClick, () => triggerEvent('submit'));
+	const formContext = useFormComponentContext();
+	const handleClick = combineEventHandlers(onClick, () => formContext.triggerEvent('submit'));
 
 	return (
 		<button {...otherProps} onClick={handleClick}>{children}</button>
