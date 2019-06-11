@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormContext, useFormComponentContext, useFormObjectContext } from './form-context';
+import { FormContext, useFormComponentContext, useFormObjectContext, useFormArrayContext } from './form-context';
 
 function noop() {}
 
@@ -25,11 +25,21 @@ export function Section(props) {
 	);
 }
 
-export function Input({ label, name, initialValue, onChange, ...otherProps }) {
+export function List(props) {
+	const context = useFormArrayContext(props);
+
+	return (
+		<FormContext.Provider value={context}>
+			{props.children}
+		</FormContext.Provider>
+	);
+}
+
+export function Input({ label, name, index, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
 	const setValue = value => ref.current.value = value;
-	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const formContext = useFormComponentContext({ name, index, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
@@ -40,11 +50,11 @@ export function Input({ label, name, initialValue, onChange, ...otherProps }) {
 	);
 }
 
-export function Checkbox({ label, name, initialValue, onChange, ...otherProps }) {
+export function Checkbox({ label, name, index, initialValue, onChange, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.checked;
 	const setValue = value => ref.current.checked = value;
-	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const formContext = useFormComponentContext({ name, index, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
@@ -55,11 +65,11 @@ export function Checkbox({ label, name, initialValue, onChange, ...otherProps })
 	);
 }
 
-export function Select({ label, name, initialValue, onChange, children, ...otherProps }) {
+export function Select({ label, name, index, initialValue, onChange, children, ...otherProps }) {
 	const ref = React.createRef();
 	const getValue = () => ref.current.value;
 	const setValue = value => ref.current.value = value;
-	const formContext = useFormComponentContext({ name, initialValue, getValue, setValue });
+	const formContext = useFormComponentContext({ name, index, initialValue, getValue, setValue });
 	const handleChange = combineEventHandlers(onChange, () => formContext.triggerEvent('change'));
 
 	return (
@@ -87,6 +97,7 @@ export function Submit({children, onClick, ...otherProps}) {
 
 export default {
 	Section,
+	List,
 	Input,
 	Checkbox,
 	Select,

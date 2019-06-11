@@ -2,8 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Form from './src/form-components';
 
+const initialValue = {
+	title: 'Ms',
+	name: 'John',
+	address: {
+		lines: [
+			'10 King Street',
+			'Brisbane'
+		],
+		postalCode: '1234'
+	}
+};
+
 function App(props) {
-	const initialValue = { title: 'Ms', name: 'John', address: { line1: '10 King Street' } };
 	const [state, setState] = React.useState(initialValue);
 
 	function onEvent(event, { getValue }) {
@@ -22,8 +33,11 @@ function App(props) {
 			<Form.Input name="phone" label="Phone" />
 			<Form.Input name="email" label="Email" />
 			<Form.Section name="address">
-				<Form.Input name="line1" label="Address" />
-				<Form.Input name="line2" />
+				<Form.List name="lines">
+					<Form.Input index="0" label="Address" />
+					<Form.Input index="1" />
+					<Form.Input index="2" />
+				</Form.List>
 				<Form.Input name="postalCode" label="Postal Code" />
 			</Form.Section>
 			<Form.Checkbox name="acceptTerms" label="Accept Terms" />

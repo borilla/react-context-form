@@ -1,7 +1,5 @@
 import React from 'react';
 
-const emptyObject = {};
-
 function getFirstDefined(a, b) {
 	return a === undefined ? b : a;
 }
@@ -86,33 +84,43 @@ class FormArrayContextValue extends FormBaseContextValue {
 export const FormContext = React.createContext(new FormBaseContextValue());
 
 export function useFormComponentContext({ name, index, initialValue, getValue, setValue } = {}) {
-	const context = React.useContext(FormContext);
 	const nameOrIndex = getFirstDefined(name, index);
+	const parentContext = React.useContext(FormContext);
+
+	if (!parentContext) {
+		throw new Error('ReactFormContext: Trying to use form component without form context');
+	}
 
 	React.useEffect(() => {
 		if (nameOrIndex !== undefined) {
 			if (setValue) {
-				const value = getFirstDefined(initialValue, context.initialValue[nameOrIndex]);
+				// if parent has an intial value for this component then use that, otherwise use one from props
+				const value = getFirstDefined(parentContext.initialValue[nameOrIndex], initialValue);
 				if (value !== undefined) {
 					setValue(value);
 				}
 			}
 
-			context.registerFormValue(nameOrIndex, getValue);
+			if (getValue) {
+				// on mount, register getter with parent
+				parentContext.registerFormValue(nameOrIndex, getValue);
 
-			return () => {
-				context.unregisterFormValue(nameOrIndex, getValue);
+				return () => {
+					// on unmount, unregister getter with parent
+					parentContext.unregisterFormValue(nameOrIndex, getValue);
+				}
 			}
 		}
 	});
 
-	return context;
+	return parentContext;
 }
 
 function getInitialValue(initialValue, parentContext, nameOrIndex) {
 	if (initialValue !== undefined) {
 		return initialValue;
 	}
+	// TODO: JA: Can we have a situation where we have no parentContext?
 	if (!parentContext) {
 		return undefined;
 	}
