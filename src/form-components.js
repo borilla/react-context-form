@@ -1,7 +1,5 @@
 import React from 'react';
-import { FormContext, useFormComponentContext, useFormObjectContext, useFormArrayContext } from './form-context';
-
-function noop() {}
+import { noop, FormContext, useFormComponentContext, useFormObjectContext, useFormArrayContext } from './form-context';
 
 function combineEventHandlers(a, b) {
 	if (!a) {

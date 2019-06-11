@@ -1,7 +1,28 @@
 import React from 'react';
+require('dotenv').config();
+
+export function noop() {};
 
 function getFirstDefined(a, b) {
 	return a === undefined ? b : a;
+}
+
+// TODO: Only do assertions for dev build
+function assert(assertion, errorMessage) {
+	if (!assertion()) {
+		throw new Error('ReactContextForm: ' + errorMessage);
+	}
+}
+
+function isInteger(val) {
+	switch (typeof val) {
+		case 'number':
+			return `${val}` === val.toFixed(0);
+		case 'string':
+			return val.match(/^[0-9]+$/);
+		default:
+			return false;
+	}
 }
 
 class FormBaseContextValue {
@@ -65,6 +86,11 @@ class FormObjectContextValue extends FormBaseContextValue {
 		});
 		return result;
 	}
+
+	registerFormValue(nameOrIndex, getValue) {
+		assert(() => !isInteger(nameOrIndex), `Incorrect name for field ("${nameOrIndex}"). Must provide name as a string`);
+		super.registerFormValue(nameOrIndex, getValue);
+	}
 }
 
 class FormArrayContextValue extends FormBaseContextValue {
@@ -79,6 +105,11 @@ class FormArrayContextValue extends FormBaseContextValue {
 		});
 		return result;
 	}
+
+	registerFormValue(nameOrIndex, getValue) {
+		assert(() => isInteger(nameOrIndex), `Incorrect index for field ("${nameOrIndex}"). Must provide index as an integer number or string`);
+		super.registerFormValue(nameOrIndex, getValue);
+	}
 }
 
 export const FormContext = React.createContext(new FormBaseContextValue());
@@ -87,9 +118,7 @@ export function useFormComponentContext({ name, index, initialValue, getValue, s
 	const nameOrIndex = getFirstDefined(name, index);
 	const parentContext = React.useContext(FormContext);
 
-	if (!parentContext) {
-		throw new Error('ReactFormContext: Trying to use form component without form context');
-	}
+	assert(() => parentContext, 'Trying to use form component without form context');
 
 	React.useEffect(() => {
 		if (nameOrIndex !== undefined) {
