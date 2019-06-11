@@ -7,13 +7,13 @@
 Clone the repo
 
 ```
-git clone https://github.com/borilla/react-form.git
+git clone https://github.com/borilla/react-context-form.git
 ```
 
 Install required modules
 
 ```
-cd react-form
+cd react-context-form
 npm install
 ```
 
@@ -22,3 +22,5 @@ Start parcel watcher and development server
 ```
 npm start
 ```
+
+View [demo page](http://locahost:1234) in your browser

@@ -1,6 +1,6 @@
 {
-  "name": "react-form",
-  "version": "0.2.1",
+  "name": "react-context-form",
+  "version": "0.2.2",
   "description": "[Experimental] form input using `context` to link the form components",
   "main": "",
   "scripts": {
@@ -11,12 +11,12 @@
   "author": "borilla",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.4.0",
+    "@babel/core": "^7.4.5",
     "babel-preset-react": "^6.24.1",
     "parcel-bundler": "^1.12.3",
-    "react": "^16.8.5",
-    "react-dom": "^16.8.5",
-    "sass": "^1.17.3"
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "sass": "^1.21.0"
   },
   "dependencies": {}
 }
