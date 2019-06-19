@@ -23,4 +23,4 @@ Start parcel watcher and development server
 npm start
 ```
 
-View [demo page](http://locahost:1234) in your browser
+Once the server has started you can view the [demo page](http://locahost:1234) in your browser
