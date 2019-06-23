@@ -7,14 +7,13 @@ function getFirstDefined(a, b) {
 	return a === undefined ? b : a;
 }
 
-// TODO: Only do assertions for dev build
 function assert(assertion, errorMessage) {
-	if (!assertion()) {
+	if ((process.env.NODE_ENV === 'development') && !assertion()) {
 		throw new Error('ReactContextForm: ' + errorMessage);
 	}
 }
 
-function isInteger(val) {
+function isValidIndex(val) {
 	switch (typeof val) {
 		case 'number':
 			return `${val}` === val.toFixed(0);
@@ -23,6 +22,10 @@ function isInteger(val) {
 		default:
 			return false;
 	}
+}
+
+function isValidName(val) {
+	return typeof val === 'string' && /^[_a-z]/i.test(val);
 }
 
 class FormBaseContextValue {
@@ -88,7 +91,7 @@ class FormObjectContextValue extends FormBaseContextValue {
 	}
 
 	registerFormValue(nameOrIndex, getValue) {
-		assert(() => !isInteger(nameOrIndex), `Incorrect name for field ("${nameOrIndex}"). Must provide name as a string`);
+		assert(() => isValidName(nameOrIndex), `Invalid name for field ("${nameOrIndex}"). Name should be a string beginning with [_a-z]`);
 		super.registerFormValue(nameOrIndex, getValue);
 	}
 }
@@ -107,7 +110,7 @@ class FormArrayContextValue extends FormBaseContextValue {
 	}
 
 	registerFormValue(nameOrIndex, getValue) {
-		assert(() => isInteger(nameOrIndex), `Incorrect index for field ("${nameOrIndex}"). Must provide index as an integer number or string`);
+		assert(() => isValidIndex(nameOrIndex), `Invalid index for field ("${nameOrIndex}"). Index should be an integer number`);
 		super.registerFormValue(nameOrIndex, getValue);
 	}
 }
