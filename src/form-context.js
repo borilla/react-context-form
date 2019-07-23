@@ -1,7 +1,7 @@
 import React from 'react';
 require('dotenv').config();
 
-export function noop() {};
+function noop() {};
 
 function getFirstDefined(a, b) {
 	return a === undefined ? b : a;
@@ -29,7 +29,7 @@ function isValidName(val) {
 }
 
 class FormBaseContextValue {
-	constructor(onEvent, initialValue, parentContext) {
+	constructor(initialValue, onEvent, parentContext) {
 		this._valueGetters = new Map();
 		this.initialValue = initialValue;
 		this.parentContext = parentContext;
@@ -78,8 +78,8 @@ class FormBaseContextValue {
 }
 
 class FormObjectContextValue extends FormBaseContextValue {
-	constructor(onEvent, initialValue = {}, parentContext) {
-		super(onEvent, initialValue, parentContext);
+	constructor(initialValue = {}, onEvent, parentContext) {
+		super(initialValue, onEvent, parentContext);
 	}
 
 	getValue() {
@@ -97,8 +97,8 @@ class FormObjectContextValue extends FormBaseContextValue {
 }
 
 class FormArrayContextValue extends FormBaseContextValue {
-	constructor(onEvent, initialValue = [], parentContext) {
-		super(onEvent, initialValue, parentContext);
+	constructor(initialValue = [], onEvent, parentContext) {
+		super(initialValue, onEvent, parentContext);
 	}
 
 	getValue() {
@@ -149,23 +149,18 @@ export function useFormComponentContext({ name, index, initialValue, getValue, s
 }
 
 function getInitialValue(initialValue, parentContext, nameOrIndex) {
-	if (initialValue !== undefined) {
-		return initialValue;
-	}
-	// TODO: JA: Can we have a situation where we have no parentContext?
-	if (!parentContext) {
-		return undefined;
-	}
-	return parentContext.initialValue[nameOrIndex];
+	const parentContextValue = parentContext.initialValue && parentContext.initialValue[nameOrIndex];
+
+	return getFirstDefined(parentContextValue, initialValue);
 }
 
-export function useFormObjectContext(props) {
-	const nameOrIndex = getFirstDefined(props.name, props.index);
+export function useFormObjectContext({ name, index, initialValue, onEvent }) {
+	const nameOrIndex = getFirstDefined(name, index);
 	const parentContext = React.useContext(FormContext);
-	const initialValue = getInitialValue(props.initialValue, parentContext, nameOrIndex);
-	const thisContext = new FormObjectContextValue(props.onEvent, initialValue, parentContext);
+	const _initialValue = getInitialValue(initialValue, parentContext, nameOrIndex);
+	const thisContext = new FormObjectContextValue(_initialValue, onEvent, parentContext);
 
-	if (parentContext && nameOrIndex !== undefined) {
+	if (nameOrIndex !== undefined) {
 		React.useEffect(() => {
 			parentContext.registerFormValue(nameOrIndex, thisContext.getValue);
 			return () => parentContext.unregisterFormValue(nameOrIndex, thisContext.getValue);
@@ -175,13 +170,13 @@ export function useFormObjectContext(props) {
 	return thisContext;
 }
 
-export function useFormArrayContext(props) {
-	const nameOrIndex = getFirstDefined(props.name, props.index);
+export function useFormArrayContext({ name, index, initialValue, onEvent }) {
+	const nameOrIndex = getFirstDefined(name, index);
 	const parentContext = React.useContext(FormContext);
-	const initialValue = getInitialValue(props.initialValue, parentContext, nameOrIndex);
-	const thisContext = new FormArrayContextValue(props.onEvent, initialValue, parentContext);
+	const _initialValue = getInitialValue(initialValue, parentContext, nameOrIndex);
+	const thisContext = new FormArrayContextValue(_initialValue, onEvent, parentContext);
 
-	if (parentContext && nameOrIndex !== undefined) {
+	if (nameOrIndex !== undefined) {
 		React.useEffect(() => {
 			parentContext.registerFormValue(nameOrIndex, thisContext.getValue);
 			return () => parentContext.unregisterFormValue(nameOrIndex, thisContext.getValue);
