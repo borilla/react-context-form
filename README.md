@@ -1,4 +1,4 @@
-# react-form
+# react-context-form
 
 [Experimental] form input using [`context`](https://reactjs.org/docs/context.html) to link the form components
 
@@ -16,7 +16,7 @@ There are no limitations imposed on components that use the provided hooks or on
 
 ### Data structure is derived from component heirarchy
 
-The data structure provided by the form is derived from the structure of descendent form components, eg a structure such as
+The data structure provided by the form is derived from the tree structure of form components, eg a structure such as
 
 ```html
   <Section name="person" />
@@ -48,7 +48,9 @@ results in a javascript object like
   }
 ```
 
-Form components can be freely mixed with any other components: _Non-form components don't affect form behaviour_
+### Non-form components don't affect form behaviour
+
+Form components can be freely mixed with any other components without affecting the resuting form value
 
 ## To try the demo
 
